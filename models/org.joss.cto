@@ -1,0 +1,92 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Write your model definitions here
+ */
+
+namespace org.joss
+
+participant person identified by email {
+  o String email
+  o String fname
+  o String lname
+  o role person_role
+  o String orcid
+  o afiliation[] institute 
+}
+
+enum role{
+  o author
+  o editor
+  o reviewer
+}
+
+concept afiliation{
+  o String institution
+  o String group optional
+  o String title optional
+}
+
+asset paper identified by doi {
+  o String doi
+  o String title
+  o String[] tags
+  --> person author
+  o String bibliography
+  o String description
+  o String url_p
+  o Long usage default=0
+  o stage stage_p default="submitted"
+  --> person editor 
+  --> person[] reviewers
+  o String Comments
+ }
+
+enum stage{
+  o submitted
+  o under_review
+  o approved
+  o rejected
+}
+
+/*for the frontend include a transaction for submission
+to fill in the information for the paper asset*/
+
+/* feedback transactions tracks communication between: 
+editor, reviewers and correponfing author
+/*feedback may change stage*/
+/*feedback provides messages between participants */
+transaction Feedback {
+  --> person reviewer
+  --> person editor optional
+  --> paper paper_to_rev
+  o String messages optional
+}
+
+// count if research object is called
+transaction usage {
+  --> paper paper_app
+  o String description default = "no description"
+}
+
+event trackusage {
+  --> paper paper_app
+  o String  description
+  o Long oldCountAccess
+  o Long newCountAccess
+}
+
+
+
